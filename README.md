@@ -7,6 +7,13 @@ Le potentiel de la base de données a pu être illustré par les requêtes SQL e
 
 
 
+
+
+
+
+
+
+
 Projet 2: Analyse des dépenses de santé remboursées par l’assurance maladie et impact des caractéristiques démographiques des bénéficiaires : le cas de cancer de 2015 à 2021 en France.
 
 Dans cette étude, les données relatives aux pathologies sur le site de ameli.data notamment, les données liées aux caractéristiques des patients atteints du cancers et celle liée aux depenses remboursées par le système de l'assurance maladie ont été prises afin d'analyser non seulement les depenses liées aux cancers au fil du temps mais aussi l'impact des caracteristiques demographiques des patients sur les depenses remboursée. 
