@@ -1,0 +1,6 @@
+Projet 1: Managing_Database
+
+Dans ce projet, nous avons pu contituer une base de données relationnelle sur le système de gestion d'un hôpital.
+
+En effet, la base de données « hospital_cicb » a été construite dans le but d’être au plus près de la structure d’un hôpital. Ainsi, une base de données complète et complexe a été établie selon le modèle logique des données. Généralement, il s’agit des patients, du personnel médical, du personnel administratif non médical, des équipements et d’autres composants physiques d’un hôpital tels que les laboratoires, les pharmacies, les caissiers, etc. Les tables ne contiennent pas beaucoup d’attributs pour détailler les objets plus en profondeur, mais cette limitation ne change pas la qualité du modèle (tables et relations gérées).
+Le potentiel de la base de données a pu être illustré par les requêtes SQL et NoSQL présentées dans le rapport. Les possibilités sont vastes, et le nombre d’exemples insérés a permis de développer des requêtes avancées qui démontrent leur utilité. Bien que contenant des données imaginaires, cette base de données est potentiellement susceptible d’être adaptée à un hôpital réel pour visualiser son activité interne et externe. Cependant, il est toujours ouvert à l’amélioration.
