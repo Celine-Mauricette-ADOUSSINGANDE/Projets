@@ -1,0 +1,514 @@
+---
+title: "R Programming Project Exam"
+date: "2024-10-26"  
+format: pdf
+editor: visual
+---
+
+## **Groupe F**:
+
+-   ADOUSSINGANDE Céline Mauricette
+
+-   AKONAKPO Romulus
+
+-   BOULANKI Loukmane
+
+```{r, echo = FALSE, load-packages1, message=FALSE, warning=FALSE, results='hide'}
+if (!requireNamespace("broom", quietly = TRUE)) {
+  install.packages("broom")}
+```
+
+```{r, echo = FALSE, load-packages2, message=FALSE, warning=FALSE, results='hide'}
+if (!requireNamespace("patchwork", quietly = TRUE)) {
+  install.packages("patchwork")}
+```
+
+```{r, echo = FALSE, load-packages3, message=FALSE, warning=FALSE, results='hide'}
+
+# Définir un miroir CRAN
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+
+# Installer tinytex si nécessaire
+if (!requireNamespace("tinytex", quietly = TRUE)) {
+  install.packages("tinytex")
+  install.packages("tidyverse")
+  install.packages("gt")
+  tinytex::install_tinytex()  # Installer TinyTeX si non installé
+}
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(gt)
+  library(dplyr)
+  library(tibble)
+  library(knitr)
+  library(patchwork)
+  library(broom)
+})
+
+
+```
+
+## I- Description of the relationship of interest
+
+### 1. Describe of the two variables of interest.
+
+#### - Variable X
+
+In our study, our variable X is the **Number of tertiary graduates**. This variable is calculated as the sum of graduates in the following fields of education (tertiary level (05-07)): F05 Natural Sciences, Mathematics and Statistics; F06 Information and Communications Technologies; and F07 Engineering, Manufacturing and Construction. So, the Variable X represents the total number of graduates at the tertiary education level.
+
+#### - Variable Y
+
+Our variable Y is the **GDP per capita**. This variable measures the gross domestic product (GDP) per capita, which represents as an indicator of the economic productivity and average income per person within a country. The GDP per capita is derived by dividing the total GDP of a country by its population.
+
+### 2. Why is it interesting to study the relationship between these two variables ?
+
+We study the relationship between **Number of tertiary graduates** and **GDP per capita** in order to verify some theory of endogenous growth. Indeed, Endogenous Growth Theory attribute growth to external factors like technological advances. It suggests that growth is generated internally and therefore the investments in human capital, innovation, and knowledge, are the factors who foster sustained economic development. As argued by Paul Romer, in his 1986 article "Increasing Returns and Long-Run Growth", points out that knowledge and innovation are internal drivers of economic growth.However, investments in research and development (R&D) and education stimulate growth because they increase the stock of knowledge that benefits the economy as a whole.
+
+So, in our study to approach human capital, we use our variable X which represents the total number of tertiary level graduates.
+
+## II- Description of data
+
+### 3. How is measured "Number of tertiary graduates"?
+
+The Number of Tertiary Graduates (X) is measured as the annual count (number) of individuals completing tertiary education within specified fields. This measure reflects the yearly output of graduates who have completed tertiary education.
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+educ_data <- read_csv("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/educ_uoe_grad02/A.NR.ED5-8.TOTAL.T.BE+BG+CZ+DK+DE+EE+IE+EL+ES+FR+HR+IT+CY+LV+LT+LU+HU+MT+NL+AT+PL+PT+RO+SI+SK+FI+SE+IS+LI+NO+CH+UK+BA+ME+MK+AL+RS+TR/?format=SDMX-CSV&returnData=ALL&startPeriod=2013&endPeriod=2022&lang=en&label=label_only")
+
+educ_level_data <- educ_data %>%
+  select(geo, TIME_PERIOD, OBS_VALUE) %>%
+  rename(country = geo,
+         year = TIME_PERIOD,
+         nb_tertiary_grad = OBS_VALUE) 
+
+```
+
+### 4. How is measured gdp per capita ?
+
+The variable GDP per capita (Y) is measured as the gross domestic product (GDP) per person in each country and calculated annually. It is expressed in current prices in euros per capita per year. It reflects the value of goods and services produced in a country per person in the economy, without adjusting for inflation or currency fluctuations over time.
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE, results='hide'}
+gdp_data  <-  read_csv ("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nama_10_pc/A.CP_EUR_HAB.B1GQ.BE+BG+CZ+DK+DE+EE+IE+EL+ES+FR+HR+IT+CY+LV+LT+LU+HU+MT+NL+AT+PL+PT+RO+SI+SK+FI+SE+IS+LI+NO+CH+UK+BA+ME+MK+AL+RS+TR+XK/?format=SDMX-CSV&returnData=ALL&startPeriod=2014&endPeriod=2023&lang=en&label=label_only")
+
+gdp_per_capita_data <- gdp_data %>%
+  select(geo, TIME_PERIOD, OBS_VALUE) %>%
+  rename(country = geo,
+         year = TIME_PERIOD,
+         gdp_per_capita = OBS_VALUE) 
+```
+
+### 5. Which column(s) do you use to merge both datasets Number of tertiary graduates and gdp per capita?
+
+To merge the two datasets, Number of Tertiary Graduates and GDP per Capita, the columns "country" and "year" are used as the keys for joining. These columns ensure that data aligns accurately for each country in a specific year, allowing for a consistent comparison across both datasets.
+
+The database obtained from the merger of our two databases will allow us to analyze the relationship between the number of tertiary graduates and GDP per capita by country and by year, which will facilitate the understanding of the effects of human capital on economic performance across different countries and time periods.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+gdp_educ_data <- left_join(gdp_per_capita_data, educ_level_data, by = c("country", "year"))%>%
+  drop_na()
+
+```
+
+### 6. What is the unit of observation in your final dataset?
+
+The unit of observation in our final dataset is "**country, year".** This unit of observation allows for the analysis of trends and relationships between countries and over time, observing how changes in tertiary education graduates can be related to changes in GDP per capita in different countries and years.
+
+### 7. How many observations are there in your final dataset?
+
+In our final dataset ,we have 315 oservations. This implies that we have data for 390 unique country-year combinations. Each observation represents a single country and year pair, providing data on the Number of Tertiary Graduates and GDP per Capita for that specific combination.
+
+## III- Descriptive statistics
+
+### 8. What is the distribution of the variable "number of tertiary graduate"? Include an histogram and/or a density plot of "number of tertiary graduate".
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Superposition de l'histogramme et de la densité pour le nombre de diplômés
+ggplot(gdp_educ_data, aes(x = nb_tertiary_grad)) +
+  geom_histogram(aes(y = ..density..), binwidth = 50000, fill = "skyblue", color = "black", alpha = 0.7) +
+  geom_density(color = "darkblue", fill = "lightblue", alpha = 0.4) +
+  labs(title = "histogram and density of number of tertiary graduate",
+       x = "Number of tertiary graduate",
+       y = "Densité") +
+  theme_minimal()
+```
+
+The distribution of the graduates by educational level is highly skewed and concentrated towards the lower values. This implies that most observations in our sample are associated with low education levels, while there are fewer observations at the higher education levels.
+
+### 9. What is the distribution of variable "gdp per capta" ? Include an histogram and/or a density plot of "gdp per capta".
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Superposition de l'histogramme et de la densité pour GDP per Capita
+ggplot(gdp_educ_data, aes(x = gdp_per_capita)) +
+  geom_histogram(aes(y = ..density..), binwidth = 5000, fill = "skyblue", color = "black", alpha = 0.7) +
+  geom_density(color = "darkblue", fill = "lightblue", alpha = 0.4) +
+  labs(title = "histogram and density of GDP per Capita",
+       x = "GDP per Capita (in EUR)",
+       y = "Densité") +
+  theme_minimal()
+
+```
+
+The GDP per capita distribution is also skewed, though less extreme than graduates by educational level. It has a high density for low GDP values, which gradually decreases as the GDP increases.
+
+### 10. Create a table of summary statistics with mean, standard deviation, minimum and maximum for both variables "number of tertiary graduade" and "gdp per capita" .
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+summary_stats <- gdp_educ_data %>%
+  summarise(
+    mean_gdp_per_capita = mean(gdp_per_capita, na.rm = TRUE),
+    sd_gdp_per_capita = sd(gdp_per_capita, na.rm = TRUE),
+    min_gdp_per_capita = min(gdp_per_capita, na.rm = TRUE),
+    max_gdp_per_capita = max(gdp_per_capita, na.rm = TRUE),
+    
+    mean_educ_level = mean(nb_tertiary_grad, na.rm = TRUE),
+    sd_educ_level = sd(nb_tertiary_grad, na.rm = TRUE),
+    min_educ_level = min(nb_tertiary_grad, na.rm = TRUE),
+    max_educ_level = max(nb_tertiary_grad, na.rm = TRUE)
+  )
+
+
+summary_stats_long <- tibble(
+  Variable = c("GDP per Capita", "Number of Tertiary Graduate"),
+  Mean = c(summary_stats$mean_gdp_per_capita, summary_stats$mean_educ_level),
+  "Standard Deviation" = c(summary_stats$sd_gdp_per_capita, summary_stats$sd_educ_level),
+  Minimum = c(summary_stats$min_gdp_per_capita, summary_stats$min_educ_level),
+  Maximum = c(summary_stats$max_gdp_per_capita, summary_stats$max_educ_level)
+)
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='axis'}
+
+kable(summary_stats_long, 
+      col.names = c("Variable", "Mean", "Standard Deviation", "Minimum", "Maximum"),
+      caption = "Summary statistics for GDP per Capita and Number of Tertiary Graduate")
+
+
+```
+
+### 11. Create a table of summary statistics where each row corresponds to one country and reports the name of the country, the mean of "number of tertiary graduade" (over the entire time period) and standard deviation and Gdp per capita .
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='axis'}
+# Calcul des statistiques par pays pour X (nb_tertiary_grad) et Y (gdp_per_capita)
+country_summary_stats <- gdp_educ_data %>%
+  group_by(country) %>%
+  summarise(
+    mean_X = mean(nb_tertiary_grad, na.rm = TRUE),
+    sd_X = sd(nb_tertiary_grad, na.rm = TRUE),
+    mean_Y = mean(gdp_per_capita, na.rm = TRUE),
+    sd_Y = sd(gdp_per_capita, na.rm = TRUE)
+  )
+
+kable(country_summary_stats, 
+      col.names = c("Country", "Mean of X ( Number of tertiary graduade)", "SD of X", 
+                    "Mean of Y (GDP per Capita)", "SD of Y"),
+      caption = "Summary statistics by country for X (tertiary graduate education level) et Y (gdp per capita)")
+
+```
+
+### 12. Plot the average evolution of "Number of tertiary graduade" and "Gdp per capita" across the years into two separated graphs. Include them into your document.
+
+#### - The average evolution of "number of tertiary graduate"
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Calcul de la moyenne annuelle de X et Y
+annual_means <- gdp_educ_data %>%
+  group_by(year) %>%
+  summarise(
+    avg_X = mean(nb_tertiary_grad, na.rm = TRUE),
+    avg_Y = mean(gdp_per_capita, na.rm = TRUE)
+  )
+
+# Graphique pour l'évolution moyenne de X (Niveau d'Éducation Tertiaire)
+plot_X <- ggplot(annual_means, aes(x = year, y = avg_X)) +
+  geom_line(color = "blue", size = 1) +
+  labs(title = "The average evolution of number of tertiary graduate",
+       x = "Years",
+       y = "Average of number of tertiary graduate") +
+  theme_minimal()
+
+# Graphique pour l'évolution moyenne de Y (PIB par Habitant)
+plot_Y <- ggplot(annual_means, aes(x = year, y = avg_Y)) +
+  geom_line(color = "green", size = 1) +
+  labs(title = "The average evolution of Y (gdp per capita)",
+       x = "Years",
+       y = "Avarage of gdp per capita") +
+  theme_minimal()
+
+plot_X 
+
+```
+
+#### - The average evolution of Y (gdp per capita)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+plot_Y
+```
+
+### 13. Select two countries and plot the average evolution of variables "number of tertiary graduate" and "GDP per capita" across the years for both in two separated graphs.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,results='hide'}
+library(dplyr)
+
+# Calculer le total des diplômés par pays
+total_graduates_by_country <- gdp_educ_data %>%
+  group_by(country) %>%
+  summarise(total_graduates = sum(nb_tertiary_grad, na.rm = TRUE))
+
+# Sélectionner les deux pays avec le plus de diplômés
+top_countries <- total_graduates_by_country %>%
+  arrange(desc(total_graduates)) %>%
+  slice_head(n = 2)  # Les 2 pays avec le plus de diplômés
+
+# Sélectionner les deux pays avec le moins de diplômés
+bottom_countries <- total_graduates_by_country %>%
+  arrange(total_graduates) %>%
+  slice_head(n = 2)  # Les 2 pays avec le moins de diplômés
+
+# Afficher les résultats
+top_countries
+bottom_countries
+
+```
+
+#### - Average of number of tertiary graduate in two country (France and Germany)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Filter data for Germany and France
+# Filtrer les données pour la France et l'Allemagne
+selected_countries <- c("France", "Germany")
+
+country_data <- gdp_educ_data %>%
+  filter(country %in% selected_countries) %>%
+  group_by(year, country) %>%
+  summarise(
+    avg_X1 = mean(nb_tertiary_grad, na.rm = TRUE),
+    avg_Y1 = mean(gdp_per_capita, na.rm = TRUE)
+  )
+
+# Graphique pour l'évolution moyenne du nombre de diplômés
+plot_X1 <- ggplot(country_data, aes(x = year, y = avg_X1, color = country)) +
+  geom_line(size = 1) +
+  labs(title = "Average of Number of Tertiary Graduates in France and Germany",
+       x = "Years",
+       y = "Average Number of Tertiary Graduates",
+       color = "Country") +
+  theme_minimal()
+
+# Graphique pour l'évolution moyenne du PIB par habitant
+plot_Y1 <- ggplot(country_data, aes(x = year, y = avg_Y1, color = country)) +
+  geom_line(size = 1) +
+  labs(title = "Average GDP per Capita in France and Germany",
+       x = "Years",
+       y = "Average GDP per Capita",
+       color = "Country") +
+  theme_minimal()
+
+# Affichage des graphiques côte à côte
+plot_X1
+
+```
+
+#### - The average evolution of Y (gdp per capita)
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
+plot_Y1
+```
+
+#### - Explain why you selected these two countries and why they provide important insights regarding the relationship between "number of tertiary graduate" and "GDP per capita".
+
+-   **France**
+
+France has a diversified economy with strengths in technology, industry, and services. The analysis of France can provide insight into how the education system contributes to economic performance in different sectors. Also, the French state invests massively in education, which makes it interesting to observe how these investments translate into a growth in GDP in relation to the number of graduates.
+
+-   **Germany**
+
+Germany is the largest economy in Europe, known for its industrial base and high level of education. It has a strong higher education system that contributes significantly to its economic growth. Thus, the relationship between the number of tertiary graduates and GDP is often visible in Germany, as higher education is strongly linked to innovation and productivity in various sectors
+
+### 14. Compute change in "number of tertiary graduate" between first and last year for each country. Rank countries into a barplot in decreasing order. Do the same with variable "GDP per capita" .
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=08, fig.height=10}
+
+
+# Calculer le changement dans X et Y pour chaque pays
+change_data <- gdp_educ_data %>%
+  group_by(country) %>%
+  summarise(
+    change_X = last(nb_tertiary_grad[!is.na(nb_tertiary_grad)]) - 
+                first(nb_tertiary_grad[!is.na(nb_tertiary_grad)]),
+    change_Y = last(gdp_per_capita[!is.na(gdp_per_capita)]) - 
+                first(gdp_per_capita[!is.na(gdp_per_capita)])
+  ) %>%
+  ungroup()
+
+# Trier les pays en fonction des changements
+change_data <- change_data %>%
+  arrange(desc(change_X), desc(change_Y))
+
+# Créer les graphiques
+plot_change_X <- ggplot(change_data, aes(x = reorder(country, change_X), y = change_X)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  coord_flip() +
+  labs(title = "Change in x (number of tertiary graduate) between 2014 and 2023 for each country",
+       x = "Country",
+       y = "Change in number of tertiary graduate") +
+  theme_minimal()
+
+plot_change_Y <- ggplot(change_data, aes(x = reorder(country, change_Y), y = change_Y)) +
+  geom_bar(stat = "identity", fill = "salmon") +
+  coord_flip() +
+  labs(title = "Change in Y (gdp per capita) between 2014 and 2023 ",
+       x = "Country",
+       y = "Change in gdp per capita") +
+  theme_minimal()
+
+# Combiner les graphiques en utilisant patchwork
+combined_plot <- plot_change_X + plot_change_Y + plot_layout(ncol = 1)
+
+# Afficher le graphique combiné
+print(combined_plot)
+
+```
+
+## IV. Relationship between "number of tertiary graduade" and "GDP per capita"
+
+### 15. Plot a scatterplot for the relationship between "GDP per capita" and "number of tertiary graduade.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+# Créer un graphique de dispersion pour la relation entre GDP per Capita (Y) et le Niveau d'Éducation Tertiaire (X)
+scatter_plot <- ggplot(gdp_educ_data, aes(x = nb_tertiary_grad, y = gdp_per_capita)) +
+  geom_point(alpha = 0.6, color = "blue") + # Ajouter les points
+  geom_smooth(method = "lm", color = "red", se = FALSE) + # Ajouter une ligne de régression linéaire
+  labs(title = "The relationship between GDP per capita and number of tertiary graduade",
+       x = "number of tertiary graduade",
+       y = "GDP per capita") +
+  theme_minimal()
+
+# Afficher le graphique
+print(scatter_plot)
+
+```
+
+### 16. Plot another scatterplot of the relationship between "GDP per capita" and "number of tertiary graduade".
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+# Créer un graphique de dispersion pour la relation entre GDP par Habitant (Y) et le Niveau d'Éducation Tertiaire (X) avec un ajustement quadratique
+scatter_plot_quadratic <- ggplot(gdp_educ_data, aes(x = nb_tertiary_grad, y = gdp_per_capita)) +
+  geom_point(alpha = 0.6, color = "blue") + # Ajouter les points
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), color = "red", se = FALSE) + # Ajouter une ligne d'ajustement quadratique
+  labs(title = "Scatterplot of the relationship between GDP per capita and number of tertiary graduade (Quadratic ajustment)",
+       x = "number of tertiary graduade",
+       y = "GDP per capita") +
+  theme_minimal()
+
+# Afficher le graphique
+print(scatter_plot_quadratic)
+
+```
+
+### 17. Compute within-country changes over the year for variables number of tertiary graduade and GDP per capita . Plot a scatterplot between the within-country change in GDP per capita and the within-country change in number of tertiary graduade.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+# Calculer le changement dans X et Y pour chaque pays par année
+change_within_country <- gdp_educ_data %>%
+  group_by(country) %>%
+  arrange(year) %>% # S'assurer que les données sont ordonnées par année
+  summarise(
+    change_X = nb_tertiary_grad - lag(nb_tertiary_grad),
+    change_Y = gdp_per_capita - lag(gdp_per_capita)
+  ) %>%
+  ungroup() %>%
+  filter(!is.na(change_X) & !is.na(change_Y)) # Retirer les NA
+
+# Créer un graphique de dispersion pour le changement dans Y et X
+scatter_plot_within_country <- ggplot(change_within_country, aes(x = change_X, y = change_Y)) +
+  geom_point(alpha = 0.6, color = "green") + # Ajouter les points
+  geom_smooth(method = "lm", color = "blue", se = FALSE) + # Ajouter une ligne d'ajustement linéaire
+  labs(title = "Relationship between Change in GDP per Capita and Change in number of Tertiary graduade",
+       x = "Change in number of Tertiary graduade",
+       y = "Change in GDP per Capita") +
+  theme_minimal()
+
+# Afficher le graphique
+print(scatter_plot_within_country)
+
+
+```
+
+### 18. Regress GDP per capita on number of tertiary graduade. Export the results into a table
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Calculer la régression de Y sur X
+model <- lm(gdp_per_capita ~ nb_tertiary_grad, data = gdp_educ_data)
+
+# Extraire les résultats dans un tableau
+model_summary <- tidy(model)
+
+# Afficher le tableau des résultats de la régression
+library(knitr)  # ou utiliser library(gt) pour un formatage différent
+kable(model_summary, 
+      col.names = c("Terms", "Estimator", "Standard deviation", "t-statistic", "P-value"),
+      caption = "Table of the Results of the Regression of GDP per capita on number of tertiarygraduade")
+
+```
+
+### 19. Regress GDP per capita on number of tertiary graduade controlling for country fixed effects.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Calculer la régression de Y sur X (sans effets fixes)
+model1 <- lm(gdp_per_capita ~ nb_tertiary_grad, data = gdp_educ_data)
+
+# Calculer la régression de Y sur X avec effets fixes (contrôlant pour le pays)
+model2 <- lm(gdp_per_capita ~ nb_tertiary_grad + factor(country), data = gdp_educ_data)
+
+# Extraire les résultats des deux modèles dans des tableaux
+model_summary_1 <- tidy(model1)
+model_summary_2 <- tidy(model2)
+
+# Ajouter une colonne pour identifier les modèles
+model_summary_1$model <- "without Fixed Effects"
+model_summary_2$model <- "With Fixed Effects"
+
+# Combiner les deux tableaux
+combined_summary <- rbind(model_summary_1, model_summary_2)
+
+# Sélectionner les colonnes d'intérêt
+combined_summary <- combined_summary %>%
+  select(model, term, estimate, std.error, statistic, p.value)
+
+# Afficher le tableau des résultats combinés
+kable(combined_summary, 
+      col.names = c("Model", "Terms", "Estimator", "Standard deviation", "Statistical t", "P-value"),
+      caption = "Table of Regression Results of Y on X (with and without fixed effects)")
+
+```
+
+### 20. Regress GDP per capita on number of tertiary graduade controlling for year and country fixed effects.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Calculer la régression de Y sur X avec effets fixes pour le pays et l'année
+model_fixed_effects <- lm(gdp_per_capita ~ nb_tertiary_grad + factor(country) + factor(year), data = gdp_educ_data)
+
+# Extraire les résultats du modèle dans un tableau
+model_summary_fixed_effects <- tidy(model_fixed_effects)
+
+# Ajouter une colonne pour identifier le modèle
+model_summary_fixed_effects$model <- "with Fixed Effects (Country and Year))"
+
+# Sélectionner les colonnes d'intérêt
+model_summary_fixed_effects <- model_summary_fixed_effects %>%
+  select(model, term, estimate, std.error, statistic, p.value)
+
+# Afficher le tableau des résultats
+
+kable(model_summary_fixed_effects, 
+      col.names = c("Model", "Terms", "Estimator", "Standard deviation", "Statistical t", "P-value"),
+      caption = "Table of Regression Results of Y on X with Fixed Effects (Country and Year)")
+
+```
