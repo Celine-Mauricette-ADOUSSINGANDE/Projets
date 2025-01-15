@@ -1,4 +1,4 @@
-**Projet 1:** Managing_Database
+**Projet 1:** Managing_Database, Script_SQL.txt, Script_NoSQL_DB.py
 
 Dans ce projet, nous avons pu contituer une base de données relationnelle sur le système de gestion d'un hôpital.
 
@@ -27,4 +27,28 @@ Par ailleurs, les dépenses remboursées par patient sont plus souvent de nature
 En se basant sur les faits de Dustmann et al. (2016, JEP) sur les différentes approches pour estimer l'impact des immigrants sur le marché du travail sur les autochtones, On distinguer trois approches :L'approche par cellule nationale de compétences, L'approche mixte, L'approche spatiale pure. Ainsi, l'approche par cellule nationale de compétences tend à produire **des effets salariaux plus négatifs** pour les autochtones en réponse à l'immigration que l'approche mixte. Tandis que, les estimations obtenues à partir de l'approche spatiale pure varient considérablement en fonction du groupe de compétences étudiées.
 
 Les données relatives aux census_acs_2000.dta ont été utilisées afin d'analyser l'immigration et le marché de travail. Ensuite, nous avons procédé à une extraction des variables pertinentes d’ipums USA afin de comparer l'extrait de données aux principaux résultats de régression.census_acs_2000.dta.
+
+
+**Projet 4:** Cons_alcol_SAS.pptx, Codesas.sas
+
+**Analyse des determinants de la non réponse liée à la consommation d'alcool**
+
+Notre étude s'est basée sur les données issues de l'enquête l'OVE (Condition de vie étudiants)
+
+
+
+**Projet 5:** predict_risk.py
+
+
+
+**Projet 6:** Econometrics_Project_Gasoline.pdf, Script_Gasoline.R
+
+
+**Projet 7:** Project_gdp_educ.pdf, Project_gdp_educ.qmd
+
+
+
+**Projet 8:** traffic_project.nb.html
+
+
 
