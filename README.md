@@ -8,7 +8,6 @@ Le potentiel de la base de données a pu être illustré par les requêtes SQL e
 
 
 
-
 **Projet 2:** Projet_Python_Celine
 
 **Analyse des dépenses de santé remboursées par l’assurance maladie et impact des caractéristiques démographiques des bénéficiaires : le cas de cancer de 2015 à 2021 en France.**
